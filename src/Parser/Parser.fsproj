@@ -50,7 +50,7 @@
     <Compile Include="Lib.fs" />
     <Compile Include="AST.fs" />
     <Compile Include="Common.fs" />
-    <Compile Include="ProvinceSectionParser.fs" />
+    <Compile Include="ProvinceParser.fs" />
     <Compile Include="Parser.fs" />
     <None Include="App.config" />
   </ItemGroup>

@@ -15,6 +15,8 @@
 
     type Section = { st: sectionType; lines: string list }
 
+    exception UnknonwSectionError of string
+
     let sectionByContent line =
         match line with
             | IsMatch "^Olympia G3 turn \d+$" -> SectHeader
@@ -25,6 +27,7 @@
             | "New players" -> SectNewPlayers
             | "Order template" -> SectOrdersTemplate
             | "Lore sheets" -> SectLore
+            | _ -> raise (UnknonwSectionError("Cannot understand section type by text: " + line))
 
     let sectionMarker current =
         let headerLine = List.head current.lines
@@ -53,4 +56,4 @@
                 |> Seq.map (fun (key, values) -> (key, values |> Seq.toArray))
                 |> Map.ofSeq
 
-        sections.[SectProvince] |> Array.map (fun x -> ProvinceSectionParser.parse x.lines)
+        sections.[SectProvince] |> Array.map (fun x -> ProvinceParser.parse x.lines)
