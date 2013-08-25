@@ -10,6 +10,7 @@
     exception InvalidNumberNameError of string
 
     let textToNumber = function
+        | "zero" | "nothing" -> 0
         | "one" -> 1
         | "two" -> 2
         | "three" -> 3
