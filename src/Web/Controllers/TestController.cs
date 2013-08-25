@@ -7,33 +7,17 @@ using System.Web.Http;
 
 namespace Web.Controllers
 {
+    using System.IO;
+
     public class TestController : ApiController
     {
         // GET api/<controller>
-        public IEnumerable<string> Get()
+        public AST.Province[] Get()
         {
-            return new string[] { "value1", "value2" };
-        }
+            var lines = File.ReadAllLines(@"C:\Local\Apps\Olympia G3 MapViewer\Games\G3-Test\report-10.txt");
+            var provinces = Parser.parse(lines);
 
-        // GET api/<controller>/5
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<controller>
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<controller>/5
-        public void Delete(int id)
-        {
+            return provinces;
         }
     }
 }
