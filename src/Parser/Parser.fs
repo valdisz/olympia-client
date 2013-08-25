@@ -22,7 +22,7 @@
             | IsMatch "^Olympia G3 turn \d+$" -> SectHeader
             | IsMatch "^.+\[[a-z]+\d+\]$" -> SectFaction
             | IsMatch "^.+\[\d+\]$" -> SectNoble
-            | IsMatch "^.+ \[[a-z]+\d+\], .+ in .+, civ-.+$" -> SectProvince
+            | IsMatch "^.+ \[[a-z]+\d+\], .+ in .+, (?:(?:civ-\d+)|wilderness)$" -> SectProvince
             | IsMatch "^.+ \[[a-z]+\d+\], .+ in .+$" -> SectInnerLocation
             | "New players" -> SectNewPlayers
             | "Order template" -> SectOrdersTemplate
@@ -50,10 +50,10 @@
     let parse (lines: string seq) =
         let sections =
             lines
-                |> Seq.fold mapSections []
-                |> Seq.map (fun s -> { s with lines = List.rev s.lines })
-                |> Seq.groupBy (fun x -> x.st)
-                |> Seq.map (fun (key, values) -> (key, values |> Seq.toArray))
-                |> Map.ofSeq
+            |> Seq.fold mapSections []
+            |> Seq.map (fun s -> { s with lines = List.rev s.lines })
+            |> Seq.groupBy (fun x -> x.st)
+            |> Seq.map (fun (key, values) -> (key, values |> Seq.toArray))
+            |> Map.ofSeq
 
         sections.[SectProvince] |> Array.map (fun x -> ProvinceParser.parse x.lines)

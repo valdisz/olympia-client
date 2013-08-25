@@ -10,7 +10,7 @@
             | "It is raining." -> FSM(SRoot, { state with rain = true })
             | line when IsMatch "^\d+: .*$" line -> SEvent state line
             | IsMatch "^Routes leaving .+:$" -> FSM(SRoutes, state)
-            | Regex "(\w[\w\s]*) \[(\w{2}\d{2})\], (\w[\w\s]*), in (\w[\w\s]*), (?:(\w[\w\s]*), )?(?civ-([\d,]+))|(?:wilderness)" [name; coords; terrain; region; safe; civ] ->
+            | Regex "^(\w[\w\s]*) \[(\w{2}\d{2})\], (\w[\w\s]*), in (\w[\w\s]*), (?:(\w[\w\s]*), )?(?:civ-(\d+)|wilderness)$" [name; coords; terrain; region; safe; civ] ->
                 FSM(SRoot, { state with
                                     name = name;
                                     coords = parseCoords coords;
