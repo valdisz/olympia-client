@@ -39,6 +39,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -75,12 +76,19 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\desert.png" />
+    <Content Include="assets\mountains.png" />
     <Content Include="assets\mountains_0.png" />
+    <Content Include="assets\shallows.png" />
+    <Content Include="assets\swamp.png" />
+    <Content Include="assets\tiles.png" />
     <Content Include="assets\tileset_1.png" />
+    <Content Include="assets\unknown.png" />
     <Content Include="assets\water_1.png" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
     <Content Include="js\crafty.js" />
+    <Content Include="js\jquery-2.0.3.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -112,8 +120,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="js\crafty.d.ts" />
+    <TypeScriptCompile Include="js\typings\crafty.d.ts" />
     <TypeScriptCompile Include="js\game.ts" />
+    <TypeScriptCompile Include="js\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

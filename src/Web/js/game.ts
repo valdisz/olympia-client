@@ -1,13 +1,25 @@
-/// <reference path="crafty.d.ts"/>
+/// <reference path="typings/jquery/jquery.d.ts"/>
+/// <reference path="typings/crafty.d.ts"/>
 
 module World {
-    export var Facts = {
-        tileSize: 16
-    };
+    export interface IProvince {
+        Terrain: string;
+        X: number;
+        Y: string;
+    }
+
+    export class Map {
+        provinces: IProvince[];
+    }
+
+    export var spriteSize = 32;
+    export var tileSize = spriteSize;
+
+    export var map = new Map();
 }
 
 module Scenes {
-    import facts = World.Facts
+    import map = World.map;
 
     export interface IScene {
         load(): void;
@@ -20,30 +32,63 @@ module Scenes {
 
     export class Loading implements IScene {
         load() {
-            Crafty.sprite(facts.tileSize, 'assets/tiles.png', {
-                grass: [2, 1],
+            Crafty.sprite(World.spriteSize, 'assets/tiles.png', {
+                tl_grass: [1, 2],
+                tl_ocean: [1, 20],
+                tl_forest: [6, 59]
             });
 
-            Crafty.sprite(facts.tileSize, 'assets/dessert.png', {
-                dessert: [0, 2],
+            Crafty.sprite(World.spriteSize, 'assets/desert.png', {
+                tl_desert: [1, 2],
             });
 
-            // when assets are loaded, switch to Map view
-            Crafty.scene('Map');
+            Crafty.sprite(World.spriteSize, 'assets/shallows.png', {
+                tl_shallows: [0, 0],
+            });
+
+            Crafty.sprite(World.spriteSize, 'assets/swamp.png', {
+                tl_swamp: [0, 0],
+            });
+
+            Crafty.sprite(World.spriteSize, 'assets/mountains.png', {
+                tl_mountain: [0, 0],
+            });
+
+            Crafty.sprite(World.spriteSize, 'assets/unknown.png', {
+                tl_unknown: [0, 0],
+            });
+
+            // loading map from server
+            $.get('api/test', null, function (data) {
+                map.provinces = data;
+                Crafty.scene('Map');
+            });
         }
 
         unload() {
         }
     }
 
+    var row = 'abcdfghjkmnpqrstvwxz';
+    var rowLookup = {};
+    for (var i = 0; i < row.length; i++) {
+        rowLookup[row[i]] = i;
+    }
+    function TranslateCoords (dim: string) {
+        var c1 = rowLookup[dim.charAt(0)];
+        var c2 = rowLookup[dim.charAt(1)];
+    
+        return c1 * row.length + c2;
+    };
+
     export class Map implements IScene {
         load() {
-            // draw random map 10x10
-            for (var x = 0; x < 10; x++) {
-                for (var y = 0; y < 10; y++) {
-                    var tile = Math.random() >= 0.5 ? 'Plain' : 'Dessert';
-                    Crafty.e(tile).at(x, y);
-                }
+            for (var i in map.provinces) {
+                var province = map.provinces[i];
+
+                var t = Crafty.e('Tile');
+                t.Tile(province);
+                t.at(province.X, TranslateCoords(province.Y));
             }
         }
 
@@ -52,46 +97,61 @@ module Scenes {
 }
 
 module Components {
-    import facts = World.Facts
 
-    function tileFactory(tile: string) {
-        return {
-            init: function() {
-                this.requires('2D, Canvas, Grid, ' + tile);
-            }
-        }
-    }
-
-    export var Grid =  {
-        init: function() {
+    export var Grid = {
+        init: function () {
             this.attr({
-                w: facts.tileSize,
-                h: facts.tileSize
+                w: World.tileSize * 3,
+                h: World.tileSize * 3
             });
         },
 
-        at: function(x: number, y: number) {
+        at: function (x: number, y: number) {
             if (x == undefined && y == undefined) {
                 return {
-                    x: this.x / facts.tileSize,
-                    y: this.y / facts.tileSize
+                    x: this.x / World.tileSize,
+                    y: this.y / World.tileSize
                 };
             }
             else {
                 this.attr({
-                    x: x * facts.tileSize,
-                    y: y * facts.tileSize
+                    x: x * World.tileSize,
+                    y: y * World.tileSize
                 });
 
                 return this;
             }
         }
+    };
+
+    var _tileMap = {
+        'Plain': 'tl_grass',
+        'Desert': 'tl_desert',
+        'Forest': 'tl_forest',
+        'Ocean': 'tl_shallows',
+        'Swamp': 'tl_swamp',
+        'Mountain': 'tl_mountain'
+    };
+
+    export function TileMap (terrain: string) {
+        return _tileMap[terrain] || 'tl_unknown';
     }
 
-    export var Tiles = {
-        Plain: tileFactory('grass'),
-        Dessert: tileFactory('dessert')
-    }
+    export var Tile = {
+        init: function () {
+            this.requires('2D, Canvas, Grid, Mouse');
+            this.bind('Click', function () {
+                alert(this.province.Y + this.province.X);
+            });
+        },
+
+        Tile: function (province: World.IProvince) {
+            this.requires(TileMap(province.Terrain));
+            this.province = province;
+        },
+
+
+    };
 }
 
 module Game {
@@ -99,15 +159,12 @@ module Game {
     import scenes = Scenes
 
     export function start() {
-        Crafty.init(640, 480);
-        Crafty.background('rgb(87, 109, 20)');
+        Crafty.init(6400, 4800);
+        Crafty.background('rgb(200, 200, 200)');
 
         // register components
         Crafty.c('Grid', components.Grid);
-        var allTiles = components.Tiles;
-        for (var p in components.Tiles) if (allTiles.hasOwnProperty(p)) {
-            Crafty.c(p, allTiles[p]);
-        }
+        Crafty.c('Tile', components.Tile);
 
         // register scenes
         scenes.register('Loading', new scenes.Loading());
