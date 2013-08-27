@@ -125,8 +125,12 @@
     <Content Include="assets\water_1.png" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <Content Include="js\angular.js" />
     <Content Include="js\crafty.js" />
     <Content Include="js\jquery-2.0.3.js" />
+    <Content Include="styles\css\bootstrap.css" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="js\bootstrap.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +148,9 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Content Include="assets\README.md" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="styles\fonts\glyphicons-halflings-regular.woff" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -161,8 +168,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="app\olympia.ts" />
     <TypeScriptCompile Include="js\typings\crafty.d.ts" />
-    <TypeScriptCompile Include="js\game.ts" />
+    <TypeScriptCompile Include="app\game.ts" />
     <TypeScriptCompile Include="js\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <PropertyGroup>

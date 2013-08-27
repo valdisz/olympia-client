@@ -1,5 +1,17 @@
 declare module Crafty {
 
+    export interface ICanvas {
+        init(): void;
+    }
+
+    export var canvas: ICanvas;
+
+    export interface IViewport {
+        init(width, height): void;
+    }
+
+    export var viewport: IViewport;
+
     function scene(sceneName: string, init: Function, uninit?: Function): void;
     function scene(sceneName: string): void;
 

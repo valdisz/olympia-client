@@ -1,14 +1,48 @@
 ﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" ng-app="Olympia" ng-controller="main">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Olympia Client</title>
+    <link rel="stylesheet" href="styles/css/bootstrap.css" />
+    <style>
+        body {
+            padding-top: 50px;
+        }
+    </style>
 </head>
 <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Olympia Client</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">Upload Report</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <crafty-canvas></crafty-canvas>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript" src="js/jquery-2.0.3.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/angular.js"></script>
     <script type="text/javascript" src="js/crafty.js"></script>
-    <script type="text/javascript" src="js/game.js"></script>
-    <script type="text/javascript">
-        window.addEventListener('load', Game.start);
-    </script>
+    <script type="text/javascript" src="app/game.js"></script>
+    <script type="text/javascript" src="app/olympia.js"></script>
 </body>
 </html>
+
