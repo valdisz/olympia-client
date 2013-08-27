@@ -59,10 +59,10 @@ module Scenes {
             });
 
             // loading map from server
-            //$.get('api/test', null, function (data) {
-            //    map.provinces = data;
-            //});
-            Crafty.scene('Map');
+            $.get('api/world', null, function (data) {
+                map.provinces = data;
+                Crafty.scene('Map');
+            });
         }
 
         unload() {
@@ -89,6 +89,9 @@ module Scenes {
                 var t = Crafty.e('Tile');
                 t.Tile(province);
                 t.at(province.X, TranslateCoords(province.Y));
+
+                Crafty.viewport.follow(t, 0, 0);
+
             }
         }
 
@@ -149,8 +152,6 @@ module Components {
             this.requires(TileMap(province.Terrain));
             this.province = province;
         },
-
-
     };
 }
 

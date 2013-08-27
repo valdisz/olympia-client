@@ -4,6 +4,8 @@
 declare var angular;
 
 module Olympia {
+    import map = World.map;
+
     angular.module('Olympia', [])
         .controller('main', function ($scope, $http) {
             $scope.upload = function () {
@@ -21,11 +23,16 @@ module Olympia {
                         return formData;
                     },
                     data: { file: $scope.reportFile }
-                }).
-                    success(function (data, status, headers, config) {
+                })
+                    .success(function (data, status, headers, config) {
                         alert("success!");
-                    }).
-                    error(function (data, status, headers, config) {
+
+                        $http.get('api/world').success(function (data) {
+                            map.provinces = data;
+                            Crafty.scene('Map');
+                        });
+                    })
+                    .error(function (data, status, headers, config) {
                         alert("failed!");
                     });
             };

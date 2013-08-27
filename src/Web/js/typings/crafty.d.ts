@@ -8,6 +8,8 @@ declare module Crafty {
 
     export interface IViewport {
         init(width, height): void;
+
+        follow(target: Object, offsetx: number, offsety: number): void;
     }
 
     export var viewport: IViewport;

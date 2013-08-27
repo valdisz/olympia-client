@@ -23,28 +23,39 @@
 
         public void LoadReport(AST.Report report)
         {
-            using(var session = store.OpenSession())
-            {
                 foreach (var p in report.provinces)
                 {
                     var id = CoordsToId(p.coords);
 
-                    Province province = GetProvince(session, id);
+                Province province;
+                using (var session = store.OpenSession())
+                {
+                    province = GetProvince(session, id);
+                }
+
+                province.X = p.coords.Item2;
+                    province.Y = p.coords.Item1;
                     province.Civ = p.civ;
                     province.Name = p.name;
                     province.Region = p.region;
-                    province.Terrain = p.terrain;
+                    province.Terrain = FToUper(p.terrain);
                     province.Safe = p.safe;
                     province.ReportedOn = report.turn;
 
                     foreach (var innerLocation in p.locations)
                     {
-                        Location loc = session.Load<Location>(innerLocation.id) ?? new Location();
-                        loc.Id = innerLocation.id;
-                        loc.Host = province;
-                        loc.Kind = innerLocation.kind;
-                        loc.Safe = innerLocation.safe;
-                        session.Store(loc);
+                        Location loc;
+                        using (var session = store.OpenSession())
+                        {
+                            loc = session.Load<Location>(innerLocation.id) ?? new Location();
+                            loc.Id = innerLocation.id;
+                            loc.Host = province;
+                            loc.Kind = innerLocation.kind;
+                            loc.Safe = innerLocation.safe;
+
+                            session.Store(loc);
+                            session.SaveChanges();
+                        }
 
                         if (RouteExists(province, loc.Id))
                         {
@@ -68,11 +79,20 @@
                             continue;
                         }
 
-                        Province routedProvince = GetProvince(session, routeId);
-                        routedProvince.Name = r.province;
-                        routedProvince.Region = r.region;
-                        routedProvince.Id = routeId;
-                        session.Store(routedProvince);
+                        Province routedProvince;
+                        using (var session = store.OpenSession())
+                        {
+                            routedProvince = GetProvince(session, routeId);
+                            routedProvince.X = r.coords.Item2;
+                            routedProvince.Y = r.coords.Item1;
+                            routedProvince.Name = r.province;
+                            routedProvince.Terrain = FToUper(r.province);
+                            routedProvince.Region = r.region;
+                            routedProvince.Id = routeId;
+
+                            session.Store(routedProvince);
+                            session.SaveChanges();
+                        }
 
                         Route route = new Route
                         {
@@ -87,13 +107,13 @@
                         }
 
                         province.Routes.Add(route);
+                        using (var session = store.OpenSession())
+                        {
+                            session.Store(province);
+                            session.SaveChanges();
+                        }
                     }
-
-                    session.Store(province);
                 }
-
-                session.SaveChanges();
-            }
         }
 
         private static void Store<T>(T entity, IDocumentSession session)
@@ -115,6 +135,12 @@
         private static string CoordsToId(Tuple<string, int> coords)
         {
             return string.Format("{0}{1}", coords.Item1, coords.Item2);
+        }
+
+        private static string FToUper(string s)
+        {
+            return s.Substring(0, 1)
+                .ToUpperInvariant() + s.Substring(1);
         }
     }
 }
