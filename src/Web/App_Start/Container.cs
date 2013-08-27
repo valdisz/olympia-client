@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Web.App_Start
+﻿namespace Web
 {
     using Autofac;
 
@@ -26,6 +21,8 @@ namespace Web.App_Start
             
                 return store;
             }).As<IDocumentStore>().SingleInstance();
+
+            builder.RegisterType<ReportLoader>().As<IReportLoader>();
         }
     }
 }
