@@ -57,10 +57,11 @@
             |> Map.ofSeq
 
         let provinces = sections.[SectProvince] |> List.map (fun x -> ProvinceParser.parse x.lines)
+        let (turn, faction) = FactionParser.parse (sections.[SectFaction] |> List.head).lines
 
         {
-            AST.faction = { id = ""; name = "" };
-            AST.turn = 0;
+            AST.faction = faction;
+            AST.turn = turn;
             AST.password = "";
             AST.provinces = provinces;
         }
