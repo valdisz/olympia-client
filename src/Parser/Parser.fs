@@ -53,7 +53,14 @@
             |> Seq.fold mapSections []
             |> Seq.map (fun s -> { s with lines = List.rev s.lines })
             |> Seq.groupBy (fun x -> x.st)
-            |> Seq.map (fun (key, values) -> (key, values |> Seq.toArray))
+            |> Seq.map (fun (key, values) -> (key, values |> Seq.toList))
             |> Map.ofSeq
 
-        sections.[SectProvince] |> Array.map (fun x -> ProvinceParser.parse x.lines)
+        let provinces = sections.[SectProvince] |> List.map (fun x -> ProvinceParser.parse x.lines)
+
+        {
+            AST.faction = { id = ""; name = "" };
+            AST.turn = 0;
+            AST.password = "";
+            AST.provinces = provinces;
+        }

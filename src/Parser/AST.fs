@@ -34,3 +34,15 @@
         events: Event list;
         seen: string list;
     }
+
+    type Faction = {
+        id: string;
+        name: string;
+    }
+
+    type Report = {
+        faction: Faction
+        turn: int;
+        password: string;
+        provinces: Province list;
+    }
