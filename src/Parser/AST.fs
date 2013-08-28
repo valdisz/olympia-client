@@ -40,9 +40,16 @@
         name: string;
     }
 
+    type Noble = {
+        id: int;
+        name: string;
+        events: Event list;
+    }
+
     type Report = {
         faction: Faction
         turn: int;
         password: string;
         provinces: Province list;
+        nobles: Noble list;
     }

@@ -58,10 +58,12 @@
 
         let provinces = sections.[SectProvince] |> List.map (fun x -> ProvinceParser.parse x.lines)
         let (turn, faction) = FactionParser.parse (sections.[SectFaction] |> List.head).lines
+        let nobles = sections.[SectNoble] |> List.map (fun x -> NobleParser.parse x.lines)
 
         {
             AST.faction = faction;
             AST.turn = turn;
             AST.password = "";
             AST.provinces = provinces;
+            AST.nobles = nobles;
         }
