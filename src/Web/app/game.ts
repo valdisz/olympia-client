@@ -141,17 +141,66 @@ module Components {
     }
 
     export var Tile = {
-        init: function () {
-            this.requires('2D, Canvas, Grid, Mouse');
-            this.bind('Click', function () {
-                alert(this.province.Y + this.province.X);
-            });
-        },
+        ready: true,
 
         Tile: function (province: World.IProvince) {
             this.requires(TileMap(province.Terrain));
             this.province = province;
         },
+
+        init: function () {
+            this.requires('2D, Canvas, Grid, Mouse');
+
+            this.bind('Click', function () {
+                alert(this.province.Y + this.province.X);
+            });
+
+            this.bind('MouseOver', function () {
+                this.hover = true;
+            });
+
+            this.bind('MouseOut', function () {
+                this.hover = false;
+            });
+
+            var draw = function (ctx, pos) {
+                if (!this.hover) {
+                    return;
+                }
+
+                var x = pos._x;
+                var y = pos._y;
+                var w = pos._w;
+                var h = pos._h;
+
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "rgb(0,0,0)";
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + w, y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y + h);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x + w, y + h);
+                ctx.lineTo(x, y + h);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x + w, y + h);
+                ctx.lineTo(x + w, y);
+                ctx.stroke();
+            };
+
+            this.bind("Draw", function (obj) {
+                draw(obj.ctx, obj.pos);
+            });
+        }
     };
 }
 
@@ -163,6 +212,25 @@ module Game {
         Crafty.init(w, h);
         Crafty.canvas.init();
         Crafty.background('rgb(200, 200, 200)');
+
+        // configure stage to be panable
+        Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function (e) {
+            if (e.button > 1) return;
+            var base = { x: e.clientX, y: e.clientY };
+
+            function scroll(e) {
+                var dx = base.x - e.clientX,
+                    dy = base.y - e.clientY;
+                base = { x: e.clientX, y: e.clientY };
+                Crafty.viewport.x -= dx;
+                Crafty.viewport.y -= dy;
+            };
+
+            Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
+            Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function () {
+                Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
+            });
+        });
 
         // register components
         Crafty.c('Grid', components.Grid);

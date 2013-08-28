@@ -24,17 +24,17 @@ module Olympia {
                     },
                     data: { file: $scope.reportFile }
                 })
-                    .success(function (data, status, headers, config) {
-                        alert("success!");
+                .success(function (data, status, headers, config) {
+                    alert("success!");
 
-                        $http.get('api/world').success(function (data) {
-                            map.provinces = data;
-                            Crafty.scene('Map');
-                        });
-                    })
-                    .error(function (data, status, headers, config) {
-                        alert("failed!");
+                    $http.get('api/world').success(function (data) {
+                        map.provinces = data;
+                        Crafty.scene('Map');
                     });
+                })
+                .error(function (data, status, headers, config) {
+                    alert("failed!");
+                });
             };
         })
 
