@@ -20,7 +20,7 @@
                 store.Initialize();
             
                 return store;
-            }).As<IDocumentStore>();
+            }).As<IDocumentStore>().SingleInstance();
 
             builder.RegisterType<ReportLoader>().As<IReportLoader>();
         }

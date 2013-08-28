@@ -23,97 +23,112 @@
 
         public void LoadReport(AST.Report report)
         {
-                foreach (var p in report.provinces)
-                {
-                    var id = CoordsToId(p.coords);
+            foreach (var p in report.provinces)
+            {
+                var id = CoordsToId(p.coords);
 
-                Province province;
+            Province province;
+            using (var session = store.OpenSession())
+            {
+                province = GetProvince(session, id);
+            }
+
+            province.X = p.coords.Item2;
+                province.Y = p.coords.Item1;
+                province.Civ = p.civ;
+                province.Name = p.name;
+                province.Region = p.region;
+                province.Terrain = FToUper(p.terrain);
+                province.Safe = p.safe;
+                province.ReportedOn = report.turn;
+
+                foreach (var innerLocation in p.locations)
+                {
+                    Location loc;
+                    using (var session = store.OpenSession())
+                    {
+                        loc = session.Load<Location>(innerLocation.id) ?? new Location();
+                        loc.Id = innerLocation.id;
+                        loc.Host = province;
+                        loc.Kind = innerLocation.kind;
+                        loc.Safe = innerLocation.safe;
+
+                        session.Store(loc);
+                        session.SaveChanges();
+                    }
+
+                    if (RouteExists(province, loc.Id))
+                    {
+                        continue;
+                    }
+
+                    Route route = new Route
+                    {
+                        Target = loc,
+                        Time = innerLocation.time,
+                        Direction = RouteDirection.In
+                    };
+                    province.Routes.Add(route);
+                }
+
+                foreach (var r in p.routes)
+                {
+                    string routeId = CoordsToId(r.coords);
+                    if (RouteExists(province, routeId))
+                    {
+                        continue;
+                    }
+
+                    Province routedProvince;
+                    using (var session = store.OpenSession())
+                    {
+                        routedProvince = GetProvince(session, routeId);
+                        routedProvince.X = r.coords.Item2;
+                        routedProvince.Y = r.coords.Item1;
+                        routedProvince.Name = r.province;
+                        routedProvince.Terrain = FToUper(r.province);
+                        routedProvince.Region = r.region;
+                        routedProvince.Id = routeId;
+
+                        session.Store(routedProvince);
+                        session.SaveChanges();
+                    }
+
+                    Route route = new Route
+                    {
+                        Target = routedProvince,
+                        Time = r.time
+                    };
+
+                    RouteDirection direction;
+                    if (RouteDirection.TryParse(r.direction, out direction))
+                    {
+                        route.Direction = direction;
+                    }
+
+                    province.Routes.Add(route);
+                    using (var session = store.OpenSession())
+                    {
+                        session.Store(province);
+                        session.SaveChanges();
+                    }
+                }
+            }
+
+            foreach (var n in report.nobles)
+            {
+                Noble noble = new Noble
+                {
+                    Id = n.id,
+                    Name = n.name
+                };
+                
                 using (var session = store.OpenSession())
                 {
-                    province = GetProvince(session, id);
+                    session.Store(noble);
+                    session.SaveChanges();
                 }
-
-                province.X = p.coords.Item2;
-                    province.Y = p.coords.Item1;
-                    province.Civ = p.civ;
-                    province.Name = p.name;
-                    province.Region = p.region;
-                    province.Terrain = FToUper(p.terrain);
-                    province.Safe = p.safe;
-                    province.ReportedOn = report.turn;
-
-                    foreach (var innerLocation in p.locations)
-                    {
-                        Location loc;
-                        using (var session = store.OpenSession())
-                        {
-                            loc = session.Load<Location>(innerLocation.id) ?? new Location();
-                            loc.Id = innerLocation.id;
-                            loc.Host = province;
-                            loc.Kind = innerLocation.kind;
-                            loc.Safe = innerLocation.safe;
-
-                            session.Store(loc);
-                            session.SaveChanges();
-                        }
-
-                        if (RouteExists(province, loc.Id))
-                        {
-                            continue;
-                        }
-
-                        Route route = new Route
-                        {
-                            Target = loc,
-                            Time = innerLocation.time,
-                            Direction = RouteDirection.In
-                        };
-                        province.Routes.Add(route);
-                    }
-
-                    foreach (var r in p.routes)
-                    {
-                        string routeId = CoordsToId(r.coords);
-                        if (RouteExists(province, routeId))
-                        {
-                            continue;
-                        }
-
-                        Province routedProvince;
-                        using (var session = store.OpenSession())
-                        {
-                            routedProvince = GetProvince(session, routeId);
-                            routedProvince.X = r.coords.Item2;
-                            routedProvince.Y = r.coords.Item1;
-                            routedProvince.Name = r.province;
-                            routedProvince.Terrain = FToUper(r.province);
-                            routedProvince.Region = r.region;
-                            routedProvince.Id = routeId;
-
-                            session.Store(routedProvince);
-                            session.SaveChanges();
-                        }
-
-                        Route route = new Route
-                        {
-                            Target = routedProvince,
-                            Time = r.time
-                        };
-
-                        RouteDirection direction;
-                        if (RouteDirection.TryParse(r.direction, out direction))
-                        {
-                            route.Direction = direction;
-                        }
-
-                        province.Routes.Add(route);
-                        using (var session = store.OpenSession())
-                        {
-                            session.Store(province);
-                            session.SaveChanges();
-                        }
-                    }
-                }
+            }
         }
 
         private static void Store<T>(T entity, IDocumentSession session)

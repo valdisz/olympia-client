@@ -74,4 +74,11 @@
             Routes = new List<Route>();
         }
     }
+
+    public class Noble
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+    }
 }

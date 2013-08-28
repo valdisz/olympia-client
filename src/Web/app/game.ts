@@ -67,11 +67,7 @@ module Scenes {
                 tl_select: [1, 0],
             });
 
-            // loading map from server
-            $.get('api/world', null, function (data) {
-                map.provinces = data;
-                Crafty.scene('Map');
-            });
+            Crafty.scene('Map');
         }
 
         unload() {
@@ -103,8 +99,11 @@ module Scenes {
                     .forProvince(province)
                     .at(province.X, TranslateCoords(province.Y));
             }
-            Crafty.viewport.follow(lastProvince, 0, 0);
-            
+
+            if (lastProvince) {
+                Crafty.viewport.follow(lastProvince, 0, 0);
+            }
+
             this.selCallback = function (province) {
                 this.sel = this.sel || Crafty.e('2D, Canvas, Grid, tl_select');
                 this.sel.at(province.X, TranslateCoords(province.Y));
@@ -217,8 +216,5 @@ module Game {
                 Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
             });
         });
-
-        // run scene
-        Crafty.scene('Loading');
     }
 }

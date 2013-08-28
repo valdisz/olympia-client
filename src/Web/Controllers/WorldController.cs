@@ -11,6 +11,14 @@ namespace Web.Controllers
 
     using Web.Models;
 
+    public class World
+    {
+        public Noble[] Nobles { get; set; }
+
+
+        public Province[] Provinces { get; set; }
+    }
+
     public class WorldController : ApiController
     {
         private readonly IDocumentStore store;
@@ -26,12 +34,15 @@ namespace Web.Controllers
         }
 
         // GET api/<controller>
-        public IEnumerable<Province> Get()
+        public World Get()
         {
             using (var session = store.OpenSession())
             {
-                return session.Query<Province>()
-                    .ToList();
+                return new World
+                {
+                    Provinces = session.Query<Province>().ToArray(),
+                    Nobles = session.Query<Noble>().ToArray()
+                };
             }
         }
     }
