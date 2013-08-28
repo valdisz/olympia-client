@@ -20,16 +20,26 @@ declare module Crafty {
     export var stage: IStage;
 
     function scene(sceneName: string, init: Function, uninit?: Function): void;
+
     function scene(sceneName: string): void;
 
     function sprite(tile: number, url: string, map: any): void;
 
     function c(name: string, component: Object): void;
+
     function e(components: string): any;
 
     function init(width: number, height: number): void;
+
     function background(color: string): void;
 
-    function addEvent(...args: any[]): void;
-    function removeEvent(...args: any[]): void;
+    function addEvent(ctx: Object, obj: HTMLElement, event: string, callback: Function): void;
+
+    function removeEvent(ctx: Object, obj: HTMLElement, event: string, callback: Function): void;
+
+    function bind(eventName: string, callback: Function): void;
+
+    function unbind(eventName: string, callback: any): void;
+
+    function trigger(eventName: string, data: any): void;
 }

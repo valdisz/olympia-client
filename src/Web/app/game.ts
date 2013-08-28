@@ -58,6 +58,15 @@ module Scenes {
                 tl_unknown: [0, 0],
             });
 
+            Crafty.sprite(World.spriteSize, 'assets/unknown.png', {
+                tl_unknown: [0, 0],
+            });
+
+            Crafty.sprite(World.spriteSize, 'assets/select.png', {
+                tl_highlight: [0, 0],
+                tl_select: [1, 0],
+            });
+
             // loading map from server
             $.get('api/world', null, function (data) {
                 map.provinces = data;
@@ -82,20 +91,35 @@ module Scenes {
     };
 
     export class Map implements IScene {
+        sel: any;
+        selCallback: Function;
+
         load() {
+            var lastProvince;
             for (var i in map.provinces) {
                 var province = map.provinces[i];
 
-                var t = Crafty.e('Tile');
-                t.Tile(province);
-                t.at(province.X, TranslateCoords(province.Y));
-
-                Crafty.viewport.follow(t, 0, 0);
-
+                lastProvince = Crafty.e('Tile')
+                    .forProvince(province)
+                    .at(province.X, TranslateCoords(province.Y));
             }
+            Crafty.viewport.follow(lastProvince, 0, 0);
+            
+            this.selCallback = function (province) {
+                this.sel = this.sel || Crafty.e('2D, Canvas, Grid, tl_select');
+                this.sel.at(province.X, TranslateCoords(province.Y));
+            };
+            Crafty.bind('SelectProvince', this.selCallback);
         }
 
-        unload() { }
+        unload() {
+            Crafty.unbind('SelectProvince', this.selCallback);
+
+            if (this.sel) {
+                this.sel.destroy();
+                this.sel = null;
+            }
+        }
     }
 }
 
@@ -141,64 +165,18 @@ module Components {
     }
 
     export var Tile = {
-        ready: true,
-
-        Tile: function (province: World.IProvince) {
+        forProvince: function (province: World.IProvince) {
             this.requires(TileMap(province.Terrain));
             this.province = province;
+
+            return this;
         },
 
         init: function () {
             this.requires('2D, Canvas, Grid, Mouse');
 
-            this.bind('Click', function () {
-                alert(this.province.Y + this.province.X);
-            });
-
-            this.bind('MouseOver', function () {
-                this.hover = true;
-            });
-
-            this.bind('MouseOut', function () {
-                this.hover = false;
-            });
-
-            var draw = function (ctx, pos) {
-                if (!this.hover) {
-                    return;
-                }
-
-                var x = pos._x;
-                var y = pos._y;
-                var w = pos._w;
-                var h = pos._h;
-
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = "rgb(0,0,0)";
-
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x + w, y);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, y + h);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(x + w, y + h);
-                ctx.lineTo(x, y + h);
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(x + w, y + h);
-                ctx.lineTo(x + w, y);
-                ctx.stroke();
-            };
-
-            this.bind("Draw", function (obj) {
-                draw(obj.ctx, obj.pos);
+            this.bind('Click', function (e) {
+                Crafty.trigger('SelectProvince', this.province);
             });
         }
     };
@@ -213,9 +191,17 @@ module Game {
         Crafty.canvas.init();
         Crafty.background('rgb(200, 200, 200)');
 
+        // register components
+        Crafty.c('Grid', components.Grid);
+        Crafty.c('Tile', components.Tile);
+
+        // register scenes
+        scenes.register('Loading', new scenes.Loading());
+        scenes.register('Map', new scenes.Map());
+
         // configure stage to be panable
         Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function (e) {
-            if (e.button > 1) return;
+            if (e.button !== 2) return;
             var base = { x: e.clientX, y: e.clientY };
 
             function scroll(e) {
@@ -231,14 +217,6 @@ module Game {
                 Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
             });
         });
-
-        // register components
-        Crafty.c('Grid', components.Grid);
-        Crafty.c('Tile', components.Tile);
-
-        // register scenes
-        scenes.register('Loading', new scenes.Loading());
-        scenes.register('Map', new scenes.Map());
 
         // run scene
         Crafty.scene('Loading');

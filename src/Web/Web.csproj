@@ -117,6 +117,7 @@
     <Content Include="assets\desert.png" />
     <Content Include="assets\mountains.png" />
     <Content Include="assets\mountains_0.png" />
+    <Content Include="assets\select.png" />
     <Content Include="assets\shallows.png" />
     <Content Include="assets\swamp.png" />
     <Content Include="assets\tiles.png" />
