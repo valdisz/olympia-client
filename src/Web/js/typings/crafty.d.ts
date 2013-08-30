@@ -8,9 +8,14 @@ declare module Crafty {
     export interface IViewport {
         x: number;
         y: number;
+        clampToEntities: boolean;
         init(width, height): void;
 
         follow(target: Object, offsetx: number, offsety: number): void;
+
+        centerOn(target: Object, frames: number): void;
+
+        mouselook(active: boolean): void;
     }
     export var viewport: IViewport;
 

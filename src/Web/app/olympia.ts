@@ -45,6 +45,7 @@ module Olympia {
 
             $scope.select = function (noble) {
                 $scope.selected = noble;
+                Crafty.trigger('ShowNoble', noble);
             };
 
             $scope.addOrder = function (com) {
@@ -124,11 +125,6 @@ module Olympia {
             ];
 
             // run
-            var h = $('#beforeMap').height();
-            Game.start($('#beforeMap div').width(), $(window).height() - 70 - h);
-
-            Crafty.scene('Loading');
-
             loadWorld();
         })
 
@@ -161,9 +157,16 @@ module Olympia {
             replace: true,
             template: '<div id="cr-stage"></div>',
             link: function (scope, element, attrs) {
+                var wnd = $(window);
+                var hud = $('#game');
+
+                hud.height(wnd.height() - 50);
+                Game.start(wnd.width(), wnd.height() - 250);
+                Crafty.scene('Loading');
+
                 window.onresize = function () {
-                    var h = $('#beforeMap').height();
-                    Crafty.viewport.init(element.parent().width(), $(window).height() - 70 - h);
+                    hud.height(wnd.height() - 50);
+                    Crafty.viewport.init(wnd.width(), wnd.height() - 250);
                 };
             }
         };

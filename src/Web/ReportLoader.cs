@@ -120,7 +120,9 @@
                 Noble noble = new Noble
                 {
                     Id = n.id,
-                    Name = n.name
+                    Name = n.name,
+                    X = n.coords.Item2,
+                    Y = n.coords.Item1,
                 };
                 
                 using (var session = store.OpenSession())

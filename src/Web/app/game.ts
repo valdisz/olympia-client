@@ -88,7 +88,9 @@ module Scenes {
 
     export class Map implements IScene {
         sel: any;
+        selNoble: any;
         selCallback: Function;
+        nobleCallback: Function;
 
         load() {
             var lastProvince;
@@ -101,23 +103,43 @@ module Scenes {
             }
 
             if (lastProvince) {
-                Crafty.viewport.follow(lastProvince, 0, 0);
+                Crafty.viewport.centerOn(lastProvince, 0);
             }
 
             this.selCallback = function (province) {
                 this.sel = this.sel || Crafty.e('2D, Canvas, Grid, tl_select');
                 this.sel.at(province.X, TranslateCoords(province.Y));
+
+                $('#selectedProvince').text(province.Y + province.X);
             };
             Crafty.bind('SelectProvince', this.selCallback);
+
+            this.nobleCallback = function (n) {
+                this.selNoble = this.selNoble || Crafty.e('2D, Canvas, Grid, Circle');
+                this.selNoble.at(n.X, TranslateCoords(n.Y));
+            };
+            Crafty.bind('ShowNoble', this.nobleCallback);
+
+            Crafty.viewport.clampToEntities = false;
+            Crafty.viewport.mouselook(true);
         }
 
         unload() {
             Crafty.unbind('SelectProvince', this.selCallback);
+            Crafty.unbind('ShowNoble', this.selCallback);
 
             if (this.sel) {
                 this.sel.destroy();
                 this.sel = null;
             }
+
+            if (this.selNoble) {
+                this.selNoble.destroy();
+                this.selNoble = null;
+            }
+
+            Crafty.viewport.clampToEntities = true;
+            Crafty.viewport.mouselook(false);
         }
     }
 }
@@ -127,8 +149,8 @@ module Components {
     export var Grid = {
         init: function () {
             this.attr({
-                w: World.tileSize * 3,
-                h: World.tileSize * 3
+                w: World.tileSize,
+                h: World.tileSize
             });
         },
 
@@ -147,6 +169,17 @@ module Components {
 
                 return this;
             }
+        }
+    };
+
+    export var Static = {
+        posX: 0,
+        posY: 0,
+        init: function() {
+            this.bind("EnterFrame", function () {
+                this.x = this.posX - Crafty.viewport.x;
+                this.y = this.posY - Crafty.viewport.y;
+            });
         }
     };
 
@@ -179,6 +212,23 @@ module Components {
             });
         }
     };
+
+    export var Circle = {
+        ready: true,
+        init: function() {
+            this.bind("Draw", function (obj) {
+                // Pass the Canvas context and the drawing region.
+                this._draw(obj.ctx, obj.pos);
+            });
+        },
+
+        _draw: function (ctx, pos) {
+            ctx.beginPath();
+            ctx.arc(pos._x + pos._w / 2, pos._y + pos._h / 2, 2, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+    };
 }
 
 module Game {
@@ -193,28 +243,13 @@ module Game {
         // register components
         Crafty.c('Grid', components.Grid);
         Crafty.c('Tile', components.Tile);
+        Crafty.c('Circle', components.Circle);
+        Crafty.c('Static', components.Static);
 
         // register scenes
         scenes.register('Loading', new scenes.Loading());
         scenes.register('Map', new scenes.Map());
 
-        // configure stage to be panable
-        Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function (e) {
-            if (e.button !== 2) return;
-            var base = { x: e.clientX, y: e.clientY };
-
-            function scroll(e) {
-                var dx = base.x - e.clientX,
-                    dy = base.y - e.clientY;
-                base = { x: e.clientX, y: e.clientY };
-                Crafty.viewport.x -= dx;
-                Crafty.viewport.y -= dy;
-            };
-
-            Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
-            Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function () {
-                Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
-            });
-        });
+        //Crafty.viewport.mouselook(true);
     }
 }
