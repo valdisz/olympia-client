@@ -20,10 +20,10 @@
     let sectionByContent line =
         match line with
             | IsMatch "^Olympia G3 turn \d+$" -> SectHeader
-            | IsMatch "^\w[\w\s]* \[[a-z]{2}\d+\]$" -> SectFaction
-            | IsMatch "^\w[\w\s]* \[\d+\]$" -> SectNoble
-            | IsMatch "^\w[\w\s]* \[[a-z]\d+\].* in .* \[.+\].*$" -> SectInnerLocation
-            | IsMatch "^\w[\w\s]* \[[a-z]{2}\d{2}\].* in .*" -> SectProvince
+            | IsMatch "^\w[\w\s'-_]* \[[a-z]{2}\d+\]$" -> SectFaction
+            | IsMatch "^\w[\w\s'-_]* \[\d+\]$" -> SectNoble
+            | IsMatch "^\w[\w\s'-_]* \[[a-z]\d+\].* in .* \[.+\].*$" -> SectInnerLocation
+            | IsMatch "^\w[\w\s'-_]* \[[a-z]{2}\d{2}\].* in .*" -> SectProvince
             | "New players" -> SectNewPlayers
             | "Order template" -> SectOrdersTemplate
             | "Lore sheets" -> SectLore

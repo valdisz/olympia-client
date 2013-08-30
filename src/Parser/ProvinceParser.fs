@@ -10,7 +10,7 @@
             | "It is raining." -> FSM(SRoot, { state with rain = true })
             | line when IsMatch "^\d+: .*$" line -> SEvent state line
             | IsMatch "^Routes leaving .+:$" -> FSM(SRoutes, state)
-            | Regex "^(\w[\w\s]*) \[([a-z]{2}\d{2})\], (\w[\w\s]*), in (\w[\w\s]*)(?:, (\w[\w\s]*))?(?:, (?:civ-(\d+)|wilderness))?$"
+            | Regex "^(\w[\w\s'-_]*) \[([a-z]{2}\d{2})\], (\w[\w\s]*), in (\w[\w\s]*)(?:, (\w[\w\s]*))?(?:, (?:civ-(\d+)|wilderness))?$"
                 [name; coords; terrain; region; safe; civ] ->
                 FSM(SRoot, { state with
                                     name = name;
@@ -24,16 +24,16 @@
             | _ -> FSM(SRoot, state)
 
     and SRoutes state = function
-        | Regex "^\s+(\w[\w\s]*), to (\w[\w\s]*) \[([a-z]{2}\d{2})\], (\d+ days?|impassable)$" [dir; province; coords; time] ->
+        | Regex "^\s+(\w[\w\s'-_]*), to (\w[\w\s'-_]*) \[([a-z]{2}\d{2})\], (\d+ days?|impassable)$" [dir; province; coords; time] ->
             let route = { direction = dir; province = province; region = ""; coords = parseCoords coords; time = parseTime time }
             FSM(SRoutes, { state with routes = route::state.routes })
-        | Regex "^\s+(\w[\w\s]*), to (\w[\w\s]*) \[([a-z]{2}\d{2})\], (\w[\w\s]*), (\d+ days?|impassable)$" [dir; province; coords; region; time] ->
+        | Regex "^\s+(\w[\w\s'-_]*), to (\w[\w\s'-_]*) \[([a-z]{2}\d{2})\], (\w[\w\s'-_]*), (\d+ days?|impassable)$" [dir; province; coords; region; time] ->
             let route = { direction = dir; province = province; region = region; coords = parseCoords coords; time = parseTime time }
             FSM(SRoutes, { state with routes = route::state.routes })
         | _ -> FSM(SRoot, state)
 
     and SLocations state = function
-        | Regex "(\w[\w\s]*) \[([a-z]\d+)\], (\w[\w\s]*)(?:, (safe haven))?, (\d+) days?" [name; id; kind; safe; time] ->
+        | Regex "(\w[\w\s'-_]*) \[([a-z]\d+)\], (\w[\w\s'-_]*)(?:, (safe haven))?, (\d+) days?" [name; id; kind; safe; time] ->
             let loc = { id = id; name = name; kind = kind; safe = (safe = "safe haven"); time = int time }
             FSM(SLocations, { state with locations = loc::state.locations })
         | _ -> FSM(SRoot, state)

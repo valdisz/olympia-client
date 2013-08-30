@@ -6,7 +6,7 @@
 
     let rec SRoot state = function
             | line when IsMatch "^\d+: .*$" line -> SEvent state line
-            | Regex "^(\w[\w\s]+) \[(\d+)\]$" [name; id] ->
+            | Regex "^(\w[\w\s'-_]+) \[(\d+)\]$" [name; id] ->
                 FSM(SRoot, { state with Noble.id = int id; Noble.name = name })
             | _ -> FSM(SRoot, state)
 
