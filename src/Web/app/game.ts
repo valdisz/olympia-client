@@ -102,12 +102,20 @@ module Scenes {
                     .at(province.X, TranslateCoords(province.Y));
             }
 
+            Crafty.e('2D, Canvas, Grid, City')
+                .attr({ name: 'Drassa' })
+                .at(23, TranslateCoords('cc'));
+
+            Crafty.e('2D, Canvas, Grid, City')
+                .attr({ name: 'Hildieth' })
+                .at(27, TranslateCoords('ch'));
+
             if (lastProvince) {
                 Crafty.viewport.centerOn(lastProvince, 0);
             }
 
             this.selCallback = function (province) {
-                this.sel = this.sel || Crafty.e('2D, Canvas, Grid, tl_select');
+                this.sel = this.sel || Crafty.e('2D, Canvas, Grid, tl_select').attr({ z: 5 });
                 this.sel.at(province.X, TranslateCoords(province.Y));
 
                 $('#selectedProvince').text(province.Y + province.X);
@@ -172,17 +180,6 @@ module Components {
         }
     };
 
-    export var Static = {
-        posX: 0,
-        posY: 0,
-        init: function() {
-            this.bind("EnterFrame", function () {
-                this.x = this.posX - Crafty.viewport.x;
-                this.y = this.posY - Crafty.viewport.y;
-            });
-        }
-    };
-
     var _tileMap = {
         'Plain': 'tl_grass',
         'Desert': 'tl_desert',
@@ -197,6 +194,7 @@ module Components {
     }
 
     export var Tile = {
+        z: 0,
         forProvince: function (province: World.IProvince) {
             this.requires(TileMap(province.Terrain));
             this.province = province;
@@ -215,6 +213,7 @@ module Components {
 
     export var Circle = {
         ready: true,
+        z: 10,
         init: function() {
             this.bind("Draw", function (obj) {
                 // Pass the Canvas context and the drawing region.
@@ -224,9 +223,60 @@ module Components {
 
         _draw: function (ctx, pos) {
             ctx.beginPath();
-            ctx.arc(pos._x + pos._w / 2, pos._y + pos._h / 2, 2, 0, 2 * Math.PI, false);
-            ctx.fillStyle = 'red';
+            ctx.arc(pos._x + pos._w / 2, pos._y + pos._h / 2, 10, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'silver';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(pos._x + pos._w / 2, pos._y + pos._h / 2, 10, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'blue';
+            ctx.stroke();
+        }
+    };
+
+    export var City = {
+        ready: true,
+        name: '',
+        z: 20,
+        alpha: 0.75,
+        init: function () {
+            this.attr({
+                w: World.tileSize * 3,
+            });
+
+            this.bind("Draw", function (obj) {
+                // Pass the Canvas context and the drawing region.
+                this._draw(obj.ctx, obj.pos);
+            });
+        },
+
+        _draw: function (ctx, pos) {
+            ctx.beginPath();
+            ctx.arc(pos._x + 16, pos._y + 16, 3, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'yellow';
             ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(pos._x + 16, pos._y + 16, 6, 0, 2 * Math.PI, false);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'yellow';
+            ctx.stroke();
+
+            ctx.font = '16px sans-serif';
+            var w = ctx.measureText(this.name).width;
+
+            ctx.beginPath();
+            ctx.rect(pos._x + 16 + 10, pos._y + 16 - 7, w + 1, 15);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+
+            ctx.fillStyle = 'yellow';
+            ctx.fillText(
+                this.name,
+                pos._x + 16 + 10,
+                pos._y + 16 + 6);
         }
     };
 }
@@ -244,7 +294,7 @@ module Game {
         Crafty.c('Grid', components.Grid);
         Crafty.c('Tile', components.Tile);
         Crafty.c('Circle', components.Circle);
-        Crafty.c('Static', components.Static);
+        Crafty.c('City', components.City);
 
         // register scenes
         scenes.register('Loading', new scenes.Loading());
