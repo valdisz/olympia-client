@@ -32,39 +32,14 @@ module Scenes {
 
     export class Loading implements IScene {
         load() {
-            Crafty.sprite(World.spriteSize, 'assets/tiles.png', {
-                tl_grass: [1, 2],
-                tl_ocean: [1, 20],
-                tl_forest: [6, 59]
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/desert.png', {
-                tl_desert: [1, 2],
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/shallows.png', {
-                tl_shallows: [0, 0],
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/swamp.png', {
-                tl_swamp: [0, 0],
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/mountains.png', {
-                tl_mountain: [0, 0],
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/unknown.png', {
-                tl_unknown: [0, 0],
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/unknown.png', {
-                tl_unknown: [0, 0],
-            });
-
-            Crafty.sprite(World.spriteSize, 'assets/select.png', {
-                tl_highlight: [0, 0],
-                tl_select: [1, 0],
+            Crafty.sprite(World.spriteSize, 'assets/tileset.png', {
+                tl_grass: [0, 0],
+                tl_forest: [1, 0],
+                tl_desert: [2, 0],
+                tl_mountain: [3, 0],
+                tl_ocean: [4, 0],
+                tl_swamp: [7, 0],
+                tl_unknown: [8, 0],
             });
 
             Crafty.scene('Map');
@@ -115,15 +90,15 @@ module Scenes {
             }
 
             this.selCallback = function (province) {
-                this.sel = this.sel || Crafty.e('2D, Canvas, Grid, tl_select').attr({ z: 5 });
+                this.sel = this.sel || Crafty.e('2D, Canvas, Grid, SelectedTile');
                 this.sel.at(province.X, TranslateCoords(province.Y));
 
-                $('#selectedProvince').text(province.Y + province.X);
+                $('#selectedProvince').text(province.Name + ' [' + province.Y + province.X + '], in ' + province.Region);
             };
             Crafty.bind('SelectProvince', this.selCallback);
 
             this.nobleCallback = function (n) {
-                this.selNoble = this.selNoble || Crafty.e('2D, Canvas, Grid, Circle');
+                this.selNoble = this.selNoble || Crafty.e('2D, Canvas, Grid, Noble');
                 this.selNoble.at(n.X, TranslateCoords(n.Y));
             };
             Crafty.bind('ShowNoble', this.nobleCallback);
@@ -184,7 +159,7 @@ module Components {
         'Plain': 'tl_grass',
         'Desert': 'tl_desert',
         'Forest': 'tl_forest',
-        'Ocean': 'tl_shallows',
+        'Ocean': 'tl_ocean',
         'Swamp': 'tl_swamp',
         'Mountain': 'tl_mountain'
     };
@@ -211,7 +186,7 @@ module Components {
         }
     };
 
-    export var Circle = {
+    export var Noble = {
         ready: true,
         z: 10,
         init: function() {
@@ -279,6 +254,31 @@ module Components {
                 pos._y + 16 + 6);
         }
     };
+
+    export var SelectedTile = {
+        ready: true,
+        z: 5,
+        alpha: 0.75,
+        init: function () {
+            this.attr({
+                w: World.tileSize,
+                h: World.tileSize
+            });
+
+            this.bind("Draw", function (obj) {
+                // Pass the Canvas context and the drawing region.
+                this._draw(obj.ctx, obj.pos);
+            });
+        },
+
+        _draw: function (ctx, pos) {
+            ctx.beginPath();
+            ctx.rect(pos._x - 2, pos._y - 2, pos._w - 4, pos._h - 4);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'yellow';
+            ctx.stroke();
+        }
+    };
 }
 
 module Game {
@@ -293,8 +293,9 @@ module Game {
         // register components
         Crafty.c('Grid', components.Grid);
         Crafty.c('Tile', components.Tile);
-        Crafty.c('Circle', components.Circle);
+        Crafty.c('Noble', components.Noble);
         Crafty.c('City', components.City);
+        Crafty.c('SelectedTile', components.SelectedTile);
 
         // register scenes
         scenes.register('Loading', new scenes.Loading());

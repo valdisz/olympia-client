@@ -114,16 +114,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="assets\desert.png" />
-    <Content Include="assets\mountains.png" />
-    <Content Include="assets\mountains_0.png" />
-    <Content Include="assets\select.png" />
-    <Content Include="assets\shallows.png" />
-    <Content Include="assets\swamp.png" />
-    <Content Include="assets\tiles.png" />
-    <Content Include="assets\tileset_1.png" />
-    <Content Include="assets\unknown.png" />
-    <Content Include="assets\water_1.png" />
+    <Content Include="assets\tileset.png" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
     <Content Include="js\angular.js" />
