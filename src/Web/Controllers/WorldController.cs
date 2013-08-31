@@ -15,8 +15,9 @@ namespace Web.Controllers
     {
         public Noble[] Nobles { get; set; }
 
-
         public Province[] Provinces { get; set; }
+
+        public Location[] Locations { get; set; }
     }
 
     public class WorldController : ApiController
@@ -41,7 +42,8 @@ namespace Web.Controllers
                 return new World
                 {
                     Provinces = session.Query<Province>().ToArray(),
-                    Nobles = session.Query<Noble>().ToArray()
+                    Nobles = session.Query<Noble>().ToArray(),
+                    Locations = session.Query<Location>().ToArray(),
                 };
             }
         }
