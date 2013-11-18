@@ -18,6 +18,8 @@ module Olympia {
                     $scope.nobles = data.Nobles;
 
                     map.provinces = data.Provinces;
+                    map.nobles = data.Nobles;
+                    map.locations = data.Locations;
 
                     Crafty.scene('Map');
                 });
@@ -44,8 +46,28 @@ module Olympia {
             };
 
             $scope.select = function (noble) {
-                $scope.selected = noble;
-                Crafty.trigger('ShowNoble', noble);
+                $scope.selNoble = noble;
+            };
+
+            Crafty.bind('SelectProvince', function (province) {
+                $scope.selProvince = province;
+                $scope.$digest();
+            });
+
+            $scope.dirToStr = function (dir) {
+                switch (dir) {
+                    case 0: return 'North';
+                    case 1: return 'South';
+                    case 2: return 'East';
+                    case 3: return 'West';
+                    case 4: return 'Out';
+                    case 5: return 'In';
+                    default: return 'Unknown';
+                }
+            };
+
+            $scope.timeToStr = function (time) {
+                return time >= 0 ? time.toString() : 'Impassable';
             };
 
             $scope.addOrder = function (com) {
@@ -157,16 +179,13 @@ module Olympia {
             replace: true,
             template: '<div id="cr-stage"></div>',
             link: function (scope, element, attrs) {
-                var wnd = $(window);
-                var hud = $('#game');
+                var host = $('#canvas-host');
 
-                hud.height(wnd.height() - 50);
-                Game.start(wnd.width(), wnd.height() - 250);
+                Game.start(host.width(), host.height());
                 Crafty.scene('Loading');
 
                 window.onresize = function () {
-                    hud.height(wnd.height() - 50);
-                    Crafty.viewport.init(wnd.width(), wnd.height() - 250);
+                    Crafty.viewport.init(host.width(), host.height());
                 };
             }
         };

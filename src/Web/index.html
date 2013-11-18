@@ -19,6 +19,11 @@
             bottom: 200px;
             left: 0;
             right: 0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
         }
 
         #nobles {
@@ -26,7 +31,15 @@
         }
 
         #game {
-            position: relative;
+            position: fixed;
+        }
+
+        #info {
+            background-color: #666;
+        }
+
+        .hud-spacer {
+            padding: 2px 6px;
         }
     </style>
 </head>
@@ -44,14 +57,25 @@
         </div>
     </div>
     
-    <div id="game">
-        <div id="canvas-host" class="pos">
+    <div id="game" style="top: 50px; left: 0; right: 0; bottom: 0;">
+        <div id="canvas-host" class="pos" style="top: 0; left: 200px; right: 0; bottom: 100px;">
             <crafty-canvas></crafty-canvas>
         </div>
-    
-        <div id="selectedProvince" class="pos" style="top: 32px; left: 32px;"></div>
 
-        <div id="nobles" class="pos" style="height: 200px; bottom: 0; left: 0; right: 0;">
+        <div id="info" class="pos" style="width: 200px; top: 0; left: 0; bottom: 100px;">
+            <div class="hud-spacer">
+                <h4>{{selProvince.Name}} [{{selProvince.Y}}{{selProvince.X}}]</h4>
+
+                <h6>Routes</h6>
+                <ul class="list-unstyled">
+                    <li ng-repeat="r in selProvince.Routes | orderBy:Direction">
+                        {{r.Target.Name}} {{dirToStr(r.Direction)}} {{timeToStr(r.Time)}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="nobles" class="pos" style="height: 100px; bottom: 0; left: 0; right: 0;">
             <ul class="list-unstyled list-inline" style="padding: 20px">
                 <li ng-repeat="n in nobles">
                     <a class="btn btn-default" ng-click="select(n)">

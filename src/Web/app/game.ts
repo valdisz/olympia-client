@@ -10,6 +10,8 @@ module World {
 
     export class Map {
         provinces: IProvince[];
+        nobles: any[];
+        locations: any[];
     }
 
     export var spriteSize = 32;
@@ -77,6 +79,16 @@ module Scenes {
                     .at(province.X, TranslateCoords(province.Y));
             }
 
+            var selectedProvinces = {};
+            for (var i in map.nobles) {
+                var noble = map.nobles[i];
+                if (selectedProvinces[noble.Y + noble.X]) {
+                    continue;
+                }
+
+                Crafty.e('2D, Canvas, Grid, Noble').at(noble.X, TranslateCoords(noble.Y));
+            }
+
             Crafty.e('2D, Canvas, Grid, City')
                 .attr({ name: 'Drassa' })
                 .at(23, TranslateCoords('cc'));
@@ -98,7 +110,7 @@ module Scenes {
             Crafty.bind('SelectProvince', this.selCallback);
 
             this.nobleCallback = function (n) {
-                this.selNoble = this.selNoble || Crafty.e('2D, Canvas, Grid, Noble');
+                this.selNoble = this.selNoble || 
                 this.selNoble.at(n.X, TranslateCoords(n.Y));
             };
             Crafty.bind('ShowNoble', this.nobleCallback);
@@ -189,6 +201,7 @@ module Components {
     export var Noble = {
         ready: true,
         z: 10,
+        alpha: 0.75,
         init: function() {
             this.bind("Draw", function (obj) {
                 // Pass the Canvas context and the drawing region.
@@ -258,7 +271,7 @@ module Components {
     export var SelectedTile = {
         ready: true,
         z: 5,
-        alpha: 0.75,
+        alpha: 0.5,
         init: function () {
             this.attr({
                 w: World.tileSize,
@@ -273,8 +286,8 @@ module Components {
 
         _draw: function (ctx, pos) {
             ctx.beginPath();
-            ctx.rect(pos._x - 2, pos._y - 2, pos._w - 4, pos._h - 4);
-            ctx.lineWidth = 4;
+            ctx.rect(pos._x + 1, pos._y + 1, pos._w - 2, pos._h - 2);
+            ctx.lineWidth = 2;
             ctx.strokeStyle = 'yellow';
             ctx.stroke();
         }
